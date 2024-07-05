@@ -20,9 +20,9 @@
        //1차카테고리 선택
        $("div#category_menu li a").on("mouseover", function(e) {
           
-        e.preventDefault();
+        e.preventDefault();  // a태그 기능해제
         
-        let cur_first_category = $(this);
+        let cur_first_category = $(this); 
 
         let cat_code = $(this).data("cat_code");
 

@@ -24,10 +24,10 @@
               </p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-outline-secondary">BUY IT NOW</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" name="btn_direct_order" th:data-pro_num="${product.pro_num}">BUY IT NOW</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" name="btn_cart_add" th:data-pro_num="${product.pro_num}">ADD TO CART</button>
                 </div>
-                <small class="text-muted">(review:9)</small>
+                <small class="text-muted">(review: 0)</small>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@
 	<div th:replace ="~{layout/comm/footer :: footerFragment}" ></div>
 </div>
 
-<!-- Modal -->
+<!-- Modal 1 -->
 <div class="modal fade" id="order_process_popup" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -133,6 +133,29 @@
 	  </div>
 	</div>
 	
+	<!-- Modal 2 -->
+	<div class="modal fade" id="order_process_popup_2" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel2" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="staticBackdropLabel2">Modal title</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+		  </div>
+		  <!-- load()매서드를 이용하여, pro_info_2.html파일이 실행돈 내용이 삽입된다. -->
+		<div class="model-Body" id="papup_info">
+		
+		</div>
+		
+ 	  </div>
+   </div>
+</div>	
+
+
+
+
+
 	</th:block>
 	<!-- REQUIRED JS SCRIPTS -->
 	<th:block layout:fragment="script">
@@ -154,41 +177,94 @@
 		actionForm.submit();
 	});
 	
-	// name="btn_add_cart"
-	$("button[name='btn_cart_add']").on("click", function() {
+	// // name="btn_add_cart"
+	// $("button[name='btn_cart_add']").on("click", function() {
 		
-		$('#order_process_popup').modal('show');
+	// 	$('#order_process_popup').modal('show');
 		
-		let pro_num = $(this).data("pro_num");
+	// 	let pro_num = $(this).data("pro_num");
 
-		console.log("상품코드: ", pro_num);
+	// 	console.log("상품코드: ", pro_num);
 		
 
-		$.ajax({
-			url: '/product/pro_info',
-			type: 'get',
-			data: {pro_num : pro_num},    // 자바스크립 오브젝 문법
-			dataytpe: 'json',             // 상품정보를 json으로 받아온다.
-			success: function(result) {
-				// result : 사용자가 선택한 상품정보
-				console.log("상품정보: ", result);
+	// 	$.ajax({
+	// 		url: '/product/pro_info',
+	// 		type: 'get',
+	// 		data: {pro_num : pro_num},    // 자바스크립 오브젝 문법
+	// 		dataytpe: 'json',             // 상품정보를 json으로 받아온다.
+	// 		success: function(result) {
+	// 			// result : 사용자가 선택한 상품정보
+	// 			console.log("상품정보: ", result);
 			
-				// model 창 요소를 접근해서 값을 대입.
-				// id="info_pro_name"
-				$("span#info_pro_name").html(result.pro_name);
-				// id="info_pro_price"
-				$("span#info_pro_price").html(result.pro_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-				// id="info_pro_img"
-				let url = `/product/image_display?dateFolderName=${result.pro_up_folder}&fileName=${result.pro_img}`;
-				console.log("url", url);
-				$("img#info_pro_img").attr("src", url);
-			}
+	// 			// model 창 요소를 접근해서 값을 대입.
+	// 			// id="info_pro_name"
+	// 			$("span#info_pro_name").html(result.pro_name);
+	// 			// id="info_pro_price"
+	// 			$("span#info_pro_price").html(result.pro_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+	// 			// id="info_pro_img"
+	// 			let url = `/product/image_display?dateFolderName=${result.pro_up_folder}&fileName=${result.pro_img}`;
+	// 			console.log("url", url);
+	// 			$("img#info_pro_img").attr("src", url);
+	// 		}
 
 				
-			});
+	// 		});
 	
+	// 	});
+	// name="btn_cart_add"
+	$("button[name='btn_cart_add']").on("click", function() {
+
+	$("#order_process_popup_2").modal('show');
+
+	let pro_num = $(this).data("pro_num");
+
+	console.log("상품코드", pro_num);
+
+	$("#papup_info").load("/product/pro_info_2?pro_num=" + pro_num);
+	
+}); 
+
+
+	// name="btn_direct_order"
+	$("button[name='btn_direct_order']").on("click", function() {
+
+		$("#order_process_popup_2").modal('show');
+
+		let pro_num = $(this).data("pro_num");
+
+		console.log("상품코드", pro_num);
+
+		$("#papup_info").load("/product/pro_info_2?pro_num=" + pro_num);
+	}); 
+	
+	// 장바구니 추가작업 model2 pro_info_2.html id="btn_cart_add"
+	$("#order_process_popup_2").on("click","button#btn_cart_add" ,function() {
+		
+		console.log("장바두니추가");
+
+		let pro_num = $(this).data("pro_num");
+		let cart_amount = $("#btn_cart_amount").val();
+
+		$.ajax({
+			url: '/cart/cart_add',
+			type: 'get',
+			data: {pro_num : pro_num, cart_amount : cart_amount},
+			datatype: "text",
+			success: function(result) {
+				if(result == "success") {
+					alert("장바구니에 등록되었습니다.");
+					if(confirm("장바구니로 이동하시겠습니까?")) {
+						location.href = "/cart/cart_list";
+					}
+					$("#order_process_popup_2").modal('hide');
+				}
+			}
+
+
+
 		});
-	
+	});
+
 	}); // ready event end
 	
 	

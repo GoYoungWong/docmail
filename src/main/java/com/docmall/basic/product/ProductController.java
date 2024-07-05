@@ -61,14 +61,14 @@ public class ProductController {
 		model.addAttribute("pro_list", pro_list);
 		model.addAttribute("pageMaker", new PageDTO(cri, totalCount));
 	}
-	
+	// 이미지출력
 	@GetMapping("/image_display")
 	public ResponseEntity<byte[]> image_display(String dateFolderName, String fileName) throws Exception {
 		
 		return FileManagerUtils.getFile(uploadPath + dateFolderName, fileName);
 	}
 	
-	// 상품정보
+	// 상품정보1
 	// ajax같은 바로 넘어가는건 Model작업을 하지 않는다.
 	// 타임리프나 jsp에 넘길때는 Model작업을 함
 	@GetMapping("pro_info")
@@ -86,5 +86,15 @@ public class ProductController {
 		
 		return entity;
 		
+	}
+	
+	// 상품정보2
+	@GetMapping("pro_info_2")
+	public void pro_info_2(int pro_num, Model model) throws Exception {
+		
+		ProductVo vo = productService.pro_info(pro_num);
+		vo.setPro_up_folder(vo.getPro_up_folder().replace("\\", "/"));
+		
+		model.addAttribute("product", vo);
 	}
 }

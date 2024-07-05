@@ -17,4 +17,6 @@ public interface ProductMapper {
 	
 	// 상품정보
 	ProductVo pro_info(int pro_num);
+	
+	// 장바구니
 }
