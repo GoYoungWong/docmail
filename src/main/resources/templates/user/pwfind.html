@@ -1,0 +1,115 @@
+
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/baseLayout}">
+  
+  <body>
+  
+
+
+<th:block layout:fragment="content">
+
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+  <div class="container">
+    <h1 class="mt-3 mb-4 text-center">임시비밀번호 발급</h1>
+    <div class="row">
+        <div class="col">
+            <div class="card card-info">
+                <div class="card-header">
+                <h3 class="card-title">임시비밀번호 폼</h3>
+                </div>
+ 
+            <form class="form-horizontal" id="pwFindForm" th:action="@{/user/pwfind}" method="post">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label for="mbsp_id" class="col-sm-4 col-form-label">아이디</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="mbsp_id" name="mbsp_id" placeholder="아이디 입력하세요." value="user01">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="mbsp_name" class="col-sm-4 col-form-label">이름</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="mbsp_name" name="mbsp_name" placeholder="이름입력하세요." value="홍길동">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="mbsp_email" class="col-sm-4 col-form-label">전자우편</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="mbsp_email" name="mbsp_email" placeholder="전자우편을 입력하세요." value="newcomsa@nate.com">
+                    </div>
+                    <div class="col-sm-2">
+                    	<button type="button" class="btn btn-link" id="btnMailAuthcode">인증번호발송</button>
+                    </div>
+                </div> 
+                <div class="form-group row">
+                    <label for="authcode" class="col-sm-4 col-form-label">인증코드</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="authcode" name="authcode" placeholder="authcode">
+                    </div>
+                </div>  
+            </div>
+            
+            <div class="card-footer text-center">
+            <button type="submit" class="btn btn-info btn-block" id="btnPw">비밀번호 재설정</button>
+            </div>
+            
+            </form>
+          </div>
+        </div>
+    </div>
+    <div th:replace ="~{layout/comm/footer :: footerFragment}" ></div>
+  </div>
+</main>
+
+
+
+  
+</th:block>
+
+ <th:block layout:fragment="script">
+ <!-- 각각의 페이지에서 필요한 자바스크립트 작성 -->
+ <script th:inline="javascript">
+
+ let msg =  [[${msg}]];
+ if(msg == "success") {
+	alert("임시비밀번호를 메일로 발송하였습니다.");
+	location.href = "/user/login";
+ }else if(msg == "failInput") {
+     alert("기본입력정보를 확인해주세요.");
+     document.getElementById("mbsp_id").focus();
+ }else if(msg == "failAuth") {
+     alert("인증코드를 확인해주세요.");
+     document.getElementById("mbsp_id").focus();
+ }
+
+
+ $(document).ready(function() {
+   //메일인증코드요청
+   $("#btnMailAuthcode").on("click", function() {
+
+     if($("#mbsp_email").val() == "") {
+         alert("메일을 입력하세요.");
+         $("#mbsp_email").focus();
+         return;
+     }
+
+     $.ajax({
+         url: '/email/authcode',
+         type: 'get',
+         data: {receiverMail : $("#mbsp_email").val(), type : "emailPw"},
+         dataType: 'text',
+         success: function(result) {
+             if(result == "success") {
+                 alert("메일로 인증코드가 발급되었습니다.");
+             }
+         }
+     });
+   });
+     
+ }); // ready event end
+ 
+  </script>
+ </th:block>
+  </body>
+</html>
