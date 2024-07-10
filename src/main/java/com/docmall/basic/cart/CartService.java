@@ -33,4 +33,9 @@ public class CartService {
 	public void cart_change(Long cart_code,int cart_amount) {
 		cartMapper.cart_change(cart_code, cart_amount);
 	}
+	
+	// 장바구니 비우기
+	public void cart_empty(String mbsp_id) {
+		cartMapper.cart_empty(mbsp_id);
+	}
 }

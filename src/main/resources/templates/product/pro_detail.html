@@ -1,0 +1,313 @@
+
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/baseLayout}">
+  
+   <th:block layout:fragment="css">
+        <!-- 각 페이지의 css -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+        <!-- 1) Include Handlebars from a CDN 사용목적 -->
+		<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script> <!--Handlebars사용이유: 단순이 화면에 보여주기위해 사용 -->
+   
+   		<script id="review-template" type="text/x-handlebars-template">
+   		<table id="revtable" class="table">
+	   	  <thead>
+	   	    <tr>
+	   	      <th scope="col">번호</th>
+	   	      <th scope="col">제목</th>
+	   	      <th scope="col">내용</th>
+	   	      <th scope="col">평점</th>
+			  <th scope="col">작성자</th>
+			  <th scope="col">등록일</th>
+			  <th scope="col">비고</th>
+	   	    </tr>
+	   	  </thead>
+	   	  <tbody>
+	   	   {{#each .}} 
+			<tr>                                    <!--첫번째 함수명  두번째,세번째 매개변수 값-->
+	   	      <th scope="row">{{rev_code}}</th>
+	   	      <td>{{rev_title}}</td>
+	   	      <td>{{rev_content}}</td>
+	   	      <td>{{displayStar rev_rate}}</td>
+			  <td>{{mbsp_id}}</td>
+	   	      <td>{{convertDate rev_date}}</td>
+			  <td>{{authContorlview mbsp_id rev_code}}</td>
+	   	    </tr>
+		   {{/each}}
+	   	  </tbody>
+   		</table>
+   		</script>
+   </th:block>
+  
+  
+  <body>
+  
+
+
+<th:block layout:fragment="content">
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+  <h3 class="display-6" th:utext="${cat_name}"></h3>
+</div>
+<div class="container">
+    <div class="row">
+        	<div class="col-6">
+        		<img th:src="${'/product/image_display?dateFolderName=' + product.pro_up_folder + '&fileName=' + product.pro_img}" style="width: 100%;height: 500px;">
+        	</div>
+        	<div class="col-6">
+        	<form>
+				<div class="form-group">
+					<span id="info_pro_name" th:text="${product.pro_name}">이름</span>
+					<small class="text-muted">(review : 0)</small>
+				</div>
+  				<div class="form-group">
+			    	<label for="exampleFormControlInput1">판매가격: </label><span th:text="${#numbers.formatInteger(product.pro_price, 3, 'COMMA') + '원'}"></span>
+				</div>
+			    <div class="form-group">
+					<label>수량</label>
+					<input type="number" class="form-control" value="1" id="btn_cart_amount">
+			    </div>
+			    <div class="form-group">
+					<button type="button" class="btn btn-secondary" style="width: 100%;" th:data-pro_num="${product.pro_num}" id="btn_direct_order">BUY IT NOW</button>
+					<button type="button" class="btn btn-light" style="width: 100%;" th:data-pro_num="${product.pro_num}" id="btn_cart_add">ADD TO CART</button>
+			    </div>
+			</form>
+        	
+        	</div>
+ </div>
+ 
+ <div class="row">
+  <div class="col">
+	  <div id="pro_info">
+	  <ul>
+	    <li><a href="#pro_detail">상세정보</a></li>
+	    <li><a href="#pro_review">상품리뷰(0)</a></li>
+	    <li><a href="#pro_qna">Q&A</a></li>
+	  </ul>
+	  <div id="pro_detail">
+	    <p th:utext="${product.pro_content}"></p> <!-- utext: 태그효과가 먹는거 -->
+	  </div>
+	  <div id="pro_review">
+		<p><button type="button" class="btn btn-link" id="btn_review_modal">상품후기작성</button></p>
+		<!--상품후기가 출력될 위치-->
+	    <div id="review_list"></div>
+			<!--페이징 출력될 위치-->
+			<div id="review_paging"></div>
+	  </div>
+	  <div id="pro_qna">
+	    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
+	    <p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
+	  </div>
+ </div>
+</div>
+ </div>
+       
+ 
+ <div th:replace ="~{layout/comm/footer :: footerFragment}" ></div>
+</div>
+
+<!-- Button trigger modal -->
+  <!-- 상품후기쓰기 Modal -->
+  <div class="modal fade" id="review_modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+		<div class="modal-body">
+		  ...
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		  <button type="button" class="btn btn-primary">Understood</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+</th:block>
+
+<th:block layout:fragment="script">
+ <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+<script th:inline="javascript"> // 타임리프에서 자바스크립트를 사용하기 위해 사용
+	
+	// 제이쿼리 UI tabs
+	$(document).ready(function() {
+		$("#pro_info").tabs();
+		// 장바구니 추가작업 model2 pro_info_2.html id="btn_cart_add"
+		$("button#btn_cart_add").on("click", function() {
+
+			console.log("장바구니추가");
+
+			let pro_num = $(this).data("pro_num");
+			let cart_amount = $("#btn_cart_amount").val();
+
+			$.ajax({
+				url : '/cart/cart_add',
+				type: 'get',
+				data: {pro_num : pro_num, cart_amount : cart_amount},
+				dataType : "text",
+				success : function(result) {
+					if(result == 'success') {
+						alert("장바구니에 등록되었습니다.");
+						if(confirm("장바구니로 이동하시겠습니까?")) {
+							location.href = "/cart/cart_list";
+						}
+					}
+				}
+			});
+
+
+		});
+
+		
+		$("button[name='btn_direct_order']").on("click", function() {
+
+			
+
+
+		});
+
+		// 상품상세정보와 코드를 가지고 와서 보여주고 다시 요청을해 후기를 가지고 와서 보여준다.
+		// 상품후기와 페이징정보를 호출하는 작업
+		let reviewPage = 1;  // 상품후기에서 첫번째 페이지를 보여주기 위함
+		let url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
+
+		// console.log("상품후기주소", url);
+
+		getReviewList(url);
+		
+		// ajax 문법을 통한 주소요청작업..  $.ajax, load(), getJSON()
+		function getReviewList(url) {    // 상품정보와 페이징정보가 스프링에서 가지고 옴
+			$.getJSON(url, function(reviewlist) {
+				//console.log("reviewlist", reviewlist.revlist);
+				//console.log("reviewlist", reviewlist.pageMaker);
+								// 상품후기데이터 // 상푸후기목록이 출력될 위치   // 핸들바 템플릿
+				print_reviewlist(reviewlist.revlist, $("#review_list"), $("#review-template"));
+				print_paging(reviewlist.pageMaker, $("#review_paging"));
+			});
+		}
+
+		// 1) 상품후기 UI작업 : Handlebars 템플릿이용
+		let print_reviewlist = function(reviewData, target, template) {
+			let templateObj = Handlebars.compile(template.html()); // 템플릿 문법검사및 참조
+			let reviewHtml = templateObj(reviewData); // 상품후기 + 템플릿
+			target.children().remove(); // 무한반복 방지
+			target.append(reviewHtml); // 상푸후기목록이 출력될 위치에 뿌림
+		}
+
+		// 2) 페이징 UI작업 : 로직으로 작업. Handlebars로는 작업이 힘듬
+		let print_paging = function(pageData, target) {
+			let str = `<nav aria-label="Page navigation example">`;
+				str += `<ul class="pagination">`;
+			
+			// 이전 표시여부
+			if(pageData.prev) {
+				str += `<li class="page-item">`;
+				str += `<a class="page-link" href="${pageData.startPage - 1}" aria-label="Previous">`;
+				str += `<span aria-hidden="true">&laquo;</span>`;
+				str += `</a>`;				
+			}
+
+			// 번호 표시
+			for(let i=pageData.startPage; i <= pageData.endPage; i++) {
+				let className = pageData.cri.pageNum == i ? 'active' : '';
+				str += `<li class="page-item ${className}"><a class="page-link" href="${i}">${i}</a></li>`;
+			}
+
+			// 다음 표시여부
+			if(pageData.next) {
+				str += `<li class="page-item">`;
+				str += `<a class="page-link" href="${pageData.endPage + 1}" aria-label="Next">`;
+				str += `<span aria-hidden="true">&raquo;</span>`;
+				str += `</a>`;				
+			}
+
+			
+
+			target.html(str);
+
+		}
+
+		// 핸들바 함수.  Handlebars template에서 사용목적  특수문자: 모음+한자키
+		Handlebars.registerHelper("displayStar", function(rating) {
+			let star = "";
+			switch(rating) {
+				case 1:
+					star = "★☆☆☆☆";
+					break;
+				case 2:
+					star = "★★☆☆☆";
+					break;
+				case 3:
+					star = "★★★☆☆";
+					break;
+				case 4:
+					star = "★★★★☆";
+					break;
+				case 5:
+					star = "★★★★★";
+					break;
+				
+			}
+
+			return star;
+		});
+
+		// 핸들바함수: 날짜를 포맷  2024/07/10
+		Handlebars.registerHelper("convertDate", function(rev_date) {
+			const d = new Date(rev_date);
+			let year = d.getFullYear();
+			let month = d.getMonth() + 1;
+			let date = d.getDate();
+			let hour = d.getHours();
+			let minute = d.getMinutes();
+		
+			return `${year}/${month}/${date} ${hour}:${minute}`;
+		});
+
+		// 핸들바함수: 작성자와로그인사용자가 일치되는 경우 수정,삭제버튼 표시
+		Handlebars.registerHelper("authContorlview", function(mbsp_id, rev_code) {
+
+			let loginId = [[ ${session.login_status.mbsp_id} ]];
+			// console.log(loginId);
+
+			let str = "";
+			if(loginId == mbsp_id) {
+				str += `<button type="button" class="btn btn-link" data-rev_code="${rev_code}">edit</button>`;
+				str += `<button type="button" class="btn btn-link" data-rev_code="${rev_code}">delete</button>`;
+			}
+
+
+			return new Handlebars.SafeString(str); // 태그효과 적용을 위해 작성
+
+		});
+
+		// 페이징 클릭 이벤트          페이지번호를 가르키는 태그선택자
+			$("#review_paging").on("click", "nav ul.pagination a", function(e) {
+				e.preventDefault();
+				reviewPage = $(this).attr("href");  // 선택한 페이지번호값이 들어감
+
+				url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
+
+				getReviewList(url);
+
+			}); 
+
+			// 상품후기 Modal
+			$("#btn_review_modal").on("click", function() {
+				$("#review_modal").modal('show');
+
+
+			});
+
+
+	}); // ready event end
+
+</script>
+</th:block>
+
+
+  </body>
+</html>

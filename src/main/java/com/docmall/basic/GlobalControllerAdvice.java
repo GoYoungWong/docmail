@@ -1,4 +1,4 @@
-package com.docmall.basic.product;
+package com.docmall.basic;
 
 import java.util.List;
 

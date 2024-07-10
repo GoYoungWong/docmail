@@ -31,7 +31,11 @@
         취소
         </div>
 	  </div>
-      <div class="row mb-3" th:each="cartproduct : ${cart_list}">
+    <hr>
+      <div class="row mb-3 justify-content-center fs-2" th:if="${#lists.isEmpty(cart_list)}"> <!-- 장바구니가 비어있으면..  타임리프 유틸리티 -->
+      	<p>장바구니가 비어있습니다.</p>
+      </div>
+      <div class="row mb-3" th:if="${!#lists.isEmpty(cart_list)}" th:each="cartproduct : ${cart_list}">
         <div class="col-md-4">
           <a class="move" href="#">
 			<img th:src="${'/cart/image_display?dateFolderName=' + cartproduct.pro_up_folder + '&fileName=s_' + cartproduct.pro_img}" style="width: 100px;height: 150px;">
@@ -58,7 +62,7 @@
       
       <div class="row mb-5">
 	    <div class="col text-center">
-        	<button type="button" class="btn btn-secondary">장바구니 비우기</button>
+        	<button type="button" class="btn btn-secondary" id="btn_cart_empty">장바구니 비우기</button>
         	<button type="button" class="btn btn-secondary">계속 쇼핑하기</button>
         	<button type="button" class="btn btn-secondary">주문하기</button>
         </div>
@@ -92,6 +96,15 @@ $(document).ready(function() {
       location.href = `/cart/cart_change?cart_code=${cart_code}&cart_amount=${cart_amount}`;
 
   });
+
+  // 장바구니 비우기 id="btn_cart_empty"  위에있는 클릭과 같음
+  $("button#btn_cart_empty").click(function() {
+    
+    if(!confirm("장바구니를 비우시겠습니까?")) return;
+
+    location.href = "/cart/cart_empty";
+  });
+
 	
 
 	}); // ready event end

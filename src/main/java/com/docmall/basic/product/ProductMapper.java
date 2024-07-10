@@ -15,8 +15,8 @@ public interface ProductMapper {
 	// 상품 총 개수
 	int getCountProductByCategory(int cat_code);
 	
-	// 상품정보
+	// 상품 팝업및 상세셜명
 	ProductVo pro_info(int pro_num);
 	
-	// 장바구니
+	
 }
