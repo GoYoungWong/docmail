@@ -35,6 +35,23 @@
 			pro_num = #{pro_num}
 	
 	</select>
+	
+	<insert id="review_save" parameterType="ReviewVO">
+		INSERT INTO
+			review_tbl(rev_code,mbsp_id, pro_num, rev_content, rev_title, rev_rate)
+		VALUES
+			(SEQ_REVIEW_CODE.NEXTVAL,#{mbsp_id}, #{pro_num}, #{rev_content}, #{rev_title}, #{rev_rate})
+		
+		
+	</insert>
 
+	<delete id="review_delete" parameterType="Integer">
+	
+		DELETE FROM
+			review_tbl
+		WHERE
+			rev_code = #{rev_code}
+	
+	</delete>
 
 </mapper>
