@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,6 +83,32 @@ public class ReviewController {
 		
 		return entity;
 	}
+	
+	// 상품후기 수정폼(json으로넘어 오기 떄문에 폼작업은 아님)
+	@GetMapping("/review_modify/{rev_code}")
+	public ResponseEntity<ReviewVO> review_modify(@PathVariable("rev_code") Integer rev_code) throws Exception {
+		
+		ResponseEntity<ReviewVO> entity = null;
+		
+		
+		entity = new ResponseEntity<ReviewVO>(reviewService.review_modify(rev_code), HttpStatus.OK);
+		
+		return entity;
+	}
+	
+	// 상품후기 수정저장
+	@PutMapping("/review_modify")
+public ResponseEntity<String> review_modify(@RequestBody ReviewVO vo) throws Exception {
+		
+		ResponseEntity<String> entity = null;
+		
+		reviewService.review_update(vo);
+		
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		
+		return entity;
+	}
+	
 		
 	// 상품후기삭제
 	@DeleteMapping("/review_delete/{rev_code}")
@@ -95,5 +122,7 @@ public class ReviewController {
 		
 		return entity;
 	}
+	
+	
 	
 }

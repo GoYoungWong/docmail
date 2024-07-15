@@ -53,5 +53,30 @@
 			rev_code = #{rev_code}
 	
 	</delete>
+	
+	<select id="review_modify" resultType="ReviewVO" parameterType="Integer">
+		
+		SELECT 
+			rev_code, mbsp_id, pro_num, rev_content, rev_title, rev_rate,rev_date
+		FROM
+			review_tbl
+		WHERE
+			rev_code = #{rev_code}
+	
+	
+	
+	</select>
+	
+	<update id="review_update" parameterType="ReviewVO">
+		UPDATE 
+			review_tbl
+		SET
+			rev_content = #{rev_content}, rev_title = #{rev_title}, rev_rate = #{rev_rate}, rev_date = SYSDATE
+		WHERE
+			rev_code = #{rev_code}
+	
+	
+	
+	</update>
 
 </mapper>

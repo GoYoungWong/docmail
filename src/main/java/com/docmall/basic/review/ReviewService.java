@@ -35,4 +35,14 @@ public class ReviewService {
 	public void review_delete(Integer rev_code) {
 		reviewMapper.review_delete(rev_code);
 	}
+	
+	// 상품후기 수정폼
+	public ReviewVO review_modify(Integer rev_code) {
+		return reviewMapper.review_modify(rev_code);
+	}
+	
+	// 상품후기수정 저장
+	public void review_update(ReviewVO vo) {
+		reviewMapper.review_update(vo);
+	}
 }

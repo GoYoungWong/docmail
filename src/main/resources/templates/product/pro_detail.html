@@ -137,6 +137,7 @@
 		  	<div class="form-group">
 			  <label for="message-text" class="col-form-label">제목</label>
 			  <input type="text" class="form-control" id="rev_title">
+			  <input type="hidden" class="form-control" id="rev_code">
 			</div>
 			<div class="form-group">
 			  <label for="message-text" class="col-form-label">내용</label>
@@ -157,6 +158,7 @@
 		<div class="modal-footer">
 		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 		  <button type="button" id="btn_review_save" class="btn btn-primary" th:data-pro_num="${product.pro_num}" >상품후기저장</button>
+		  <button type="button" id="btn_review_modify" class="btn btn-primary" th:data-pro_num="${product.pro_num}" >상품후기수정</button>
 		</div>
 	  </div>
 	</div>
@@ -197,13 +199,6 @@
 
 		});
 
-		
-		$("button[name='btn_direct_order']").on("click", function() {
-
-			
-
-
-		});
 		// 이 두 줄의 코드는 페이지 로딩 시 처음으로 보여줄 후기 페이지의 번호를 정의하고, 해당 페이지의 후기 목록을 요청할 URL을 생성하는 역할을 합니다.
 		// 상품상세정보와 코드를 가지고 와서 보여주고 다시 요청을해 후기를 가지고 와서 보여준다.
 		// 상품후기와 페이징정보를 호출하는 작업
@@ -344,6 +339,9 @@
 
 			// 상품후기 Modal
 			$("#btn_review_modal").on("click", function() {
+				
+				$("#btn_review_save").show();
+				$("#btn_review_modify").hide(); // 화면에 보이지 않게함
 				$("#review_modal").modal('show');
 
 
@@ -410,6 +408,102 @@
 				});
 			});
 
+			// 상품후기 수정폼(수정하는 작업을 보여주기위해) name="btn_review_edit"
+			$("div#review_list").on("click","button[name='btn_review_edit']" ,function(){
+				let rev_code = $(this).data("rev_code");
+				
+				$.ajax({
+					url: '/review/review_modify/' + rev_code,    // REST API
+					headers: {																
+						"Content-Type" : "application/json", "x-HTTP-Method-Override" : "GET"   
+					},
+					type: 'get',
+					dataType: 'json',  // 스프링에서 넘어오는 데이터가 무슨타입인지 확인
+					success: function(result) {  // result: 스프링에서 넘어오는 값 (상품후기 내용이 들어옴)
+						console.log(result);
+
+						// modal 내용에 상품후기 출력작업
+						$("#rev_title").val(result.rev_title);
+						$("#rev_content").val(result.rev_content);
+						$("#rev_code").val(result.rev_code);  // <input type="hidden" id="rev_code">
+
+						// $("#btn_review_save").html("상품후기수정");  // id값은 한번 정하면 변경불가, 현재는 쓰기랑 저장이 같이 구축되버림
+
+						let rev_rate = result.rev_rate;
+						
+						$("p#star_rev_rate a.rev_rate").each(function(index,item) {
+
+							if(index < rev_rate) {
+								$(this).addClass("on");
+							}
+								
+						});
+						// modal 보여주기
+						$("#btn_review_save").hide(); // 화면에 보이지 않게함
+						$("#btn_review_modify").show(); 
+						$("#review_modal").modal('show');
+
+					}
+
+				});
+			});
+
+			// 상품후기 수정클릭
+			// 상품후기저장 id=btn_review_save
+			$("button#btn_review_modify").on("click",function() {
+				let pro_num = $(this).data("pro_num");
+				// console.log(pro_num);
+
+				let rev_code = $("#rev_code").val();
+				let rev_title = $("#rev_title").val();
+				let rev_content = $("#rev_content").val();
+				let rev_rate = 0; // 평점 기본값 0
+
+				$("p#star_rev_rate a.rev_rate").each(function() {
+					if($(this).attr("class") == "rev_rate on") {
+						rev_rate += 1;
+					}
+
+				});
+				// 유효성검사
+				if(rev_title == "") {
+					alert("제목을 입력하세요.");
+					return;
+				}
+
+				if(rev_content == "") {
+					alert("내용을 입력하세요.");
+					return;
+				}
+
+				if(rev_rate == 0) {
+					alert("별평점을 입력하세요.");
+					return;
+				}
+				// 자바스크립트 Object문법사용
+				let review_data = {rev_code : rev_code ,pro_num : pro_num, rev_title : rev_title, rev_content : rev_content, rev_rate : rev_rate};
+
+				$.ajax({
+					url: '/review/review_modify',
+					// 브라우저는 요청방식이 "GET", "POST"만 지원을 한다.
+					// REST API개발에서는 "GET", "POST", "DELETE", "PUT", "PATCH" 요청방식을 지원하므로,
+					// 스프링 컨트롤러에서 REST API로 매핑주소가 설정되어 있으면,
+					// 아래와 같이 "x-HTTP-Method-Override" : "요청방식" 으로 코드를 구성해줘야, 정상적으로 스프링주소를 호출이 가능해진다.
+					headers: {																
+						"Content-Type" : "application/json", "x-HTTP-Method-Override" : "PUT"   // 보내는 데이터가 JSON이라는 뜻
+					},
+					type: 'put',
+					data : JSON.stringify(review_data), // 자바스크립트 Object문법을 JSON으로 변환하는 작업
+					datatype: 'text',
+					success: function(result) {
+						alert("상품후기가 수정됨");
+						$("#review_modal").modal('hide');
+						getReviewList(url); // 상품후기목록과페이징정보를 갱신
+					}		
+				});
+			});
+
+
 			// 상품후기 삭제 name="btn_review_delete"
 			$("div#review_list").on("click","button[name='btn_review_delete']" ,function(){
 				if(!confirm("삭제하시겠습니까?")) return;
@@ -423,7 +517,7 @@
 					// 스프링 컨트롤러에서 REST API로 매핑주소가 설정되어 있으면,
 					// 아래와 같이 "x-HTTP-Method-Override" : "요청방식" 으로 코드를 구성해줘야, 정상적으로 스프링주소를 호출이 가능해진다.
 					headers: {																
-						"Content-Type" : "application/json", "x-HTTP-Method-Override" : "DELETE"   // 보내는 데이터가 JSON이라는 뜻
+						"Content-Type" : "application/json", "x-HTTP-Method-Override" : "DELETE"   // 보내는 데이터가 JSON이며 웹브라우저가 delete를 인식을 못해서 코드로 처리하는것
 					},
 					type: 'delete',
 					datatype: 'text',
@@ -433,7 +527,19 @@
 					}		
 				});
 			});
+				
+			// 바로구매 id="btn_direct_order"
+			$("#btn_direct_order").on("click",function() {
+				console.info("바로구매");
+				
+				let cart_amount = $("#btn_cart_amount").val();
+				let pro_num = $(this).data("pro_num");
+				let url = `/order/orderinfo?pro_num=${pro_num}&cart_amount=${cart_amount}`;
 
+				location.href = url;
+
+				});
+			
 
 	}); // ready event end
 

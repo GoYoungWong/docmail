@@ -19,4 +19,10 @@ public interface ReviewMapper {
 	
 	// 상품리뷰 삭제
 	void review_delete(Integer rev_code);
+	
+	// 상품후기 수정폼
+	ReviewVO review_modify(Integer rev_code);
+	
+	// 상품후기수정 저장
+	void review_update(ReviewVO vo);
 }

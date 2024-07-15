@@ -2,90 +2,107 @@ package com.docmall.basic.kakaopay;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+/**
+ * Created by kakaopay
+ */
 @Service
-public class KakaopayService {
+@Slf4j
+public class KakaoPayService {
+//    @Value("${kakaopay.api.secret.key}")
+//    private String kakaopaySecretKey;
+//
+//    @Value("${cid}")
+//    private String cid;
+//
+//    @Value("${sample.host}")
+//    private String sampleHost;
 
-	private HttpHeaders getHeaderInfo() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "SECRET_KEY DEVFF7BA28D71B6BBF1464A8EBB571FF9725C6BA");
-		headers.set("Content-type", "application/json;charset=utf-8");
-		
-		return headers;
-	}
-	
-	public ReadyResponse payReady(Long odr_code, String itemName, int quantity, String mbsp_id, int totalAmount) {
-		
-		// 응답받은 데이터
-		ReadyResponse readyResponse = null;
-		try {
-			MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
-			
-			parameters.add("cid", "TC0ONETIME"); // 가맹점 코드, 10자
-			parameters.add("partner_order_id", "partner_order_id"); // 가맹점 주문번호(쇼핑몰 상품주문번호), 최대 100자
-			parameters.add("partner_user_id", "partner_user_id"); // 가맹점 회원 id, 최대 100자
-			parameters.add("item_name", "good");// 상품명, 최대 100자.   예> A상품외 2건
-			parameters.add("quantity", "1"); // 상품 수량
-			parameters.add("total_amount", "2200"); // 상품 총액
-			parameters.add("vat_amount", "200"); // 상품 총액
-			parameters.add("tax_free_amount", "0"); // 상품 비과세 금액
+    private String tid;
 
-			
-			parameters.add("approval_url", "http://localhost:9090/kakao/orderApproval"); // 결제 성공 시 redirect url, 최대 255자
-			parameters.add("cancel_url", "http://localhost:9090/kakao/orderApproval"); // 결제 취소 시 redirect url, 최대 255자
-			parameters.add("fail_url", "http://localhost:9090/kakao/orderApproval"); // 결제 실패 시 redirect url, 최대 255자
-			
-			
-			// https://jung-story.tistory.com/132
-			
-			//헤더와 파라미터정보를 구성하는 작업
-			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String,String>>(parameters, this.getHeaderInfo());
-			
-			//Kakao API 서버와 통신
-			RestTemplate template = new RestTemplate();
-			
-			String kakaoReadyUrl = "https://open-api.kakaopay.com/online/v1/payment/ready"; 
-			
-			readyResponse = template.postForObject(kakaoReadyUrl, requestEntity, ReadyResponse.class);
-			
-			log.info("응답데이터: " + readyResponse);
-		} catch (RestClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return readyResponse;
-	}
+    // 1)결제준비요청(ready)
+    public ReadyResponse ready() {
+        // 1) Request header
+        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Authorization", "DEV_SECRET_KEY " + kakaopaySecretKey);
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "SECRET_KEY DEV5611B37223A9D8322A9BED1D37EFF6D7478C5");
+        headers.set("Content-type", "application/json;charset=utf-8");
 
-	public ApproveResponse payApprove(Long odr_code, String tid, String pgToken, String mbsp_id) {
-	
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
-		
-		parameters.add("cid", "TC0ONETIME");
-		parameters.add("tid", tid);
-		parameters.add("partner_order_id", String.valueOf(odr_code));
-		parameters.add("partner_user_id", mbsp_id);
-		parameters.add("pg_token", pgToken);
-		
-		//헤더와 파라미터정보를 구성하는 작업
-		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String,String>>(parameters, this.getHeaderInfo());
-		
-		//Kakao API 서버와 통신
-		RestTemplate template = new RestTemplate();
-		
-		String kakaoApproveUrl = "https://kapi.kakao.com/v1/payment/approve"; 
-		
-		// 응답받은 데이터
-		ApproveResponse approveResponse = template.postForObject(kakaoApproveUrl, requestEntity, ApproveResponse.class);
-		
-		return approveResponse;
-	}
+        // 2) Request param
+        ReadyRequest readyRequest = ReadyRequest.builder() 
+        		// builder: 필드에 있는 것중에 필요한 것만 생성자를 만들때 사용된다. 
+        		// 그리고 사용하기 위해서는 @Builder 어노테이션을 필드가 있는 클래스에 넣어야 한다.
+        		// https://mangkyu.tistory.com/163
+                .cid("TC0ONETIME")
+                .partnerOrderId("1")
+                .partnerUserId("1")
+                .itemName("상품명")
+                .quantity(1)
+                .totalAmount(1100)
+                .taxFreeAmount(0)
+                .vatAmount(100)
+                .approvalUrl("http://localhost:9090/kakao/approval") // 성공.  카카오페이 서버에서 이 주소를 찾아온다.
+                .cancelUrl("http://localhost:9090/kakao/cancel") // 취소
+                .failUrl("http://localhost:9090/kakao/fail")  // 실패.
+                .build();
+
+        // 3) Send reqeust
+        HttpEntity<ReadyRequest> entityMap = new HttpEntity<>(readyRequest, headers);
+        
+        // RestTemplate: Spring Framework에서 제공하는 HTTP 클라이언트
+        // postForEntity: RestTemplate에 POST요청시 사용
+        ResponseEntity<ReadyResponse> response = new RestTemplate().postForEntity(
+                "https://open-api.kakaopay.com/online/v1/payment/ready",
+                entityMap,
+                ReadyResponse.class
+        );
+        ReadyResponse readyResponse = response.getBody();
+        
+        // 주문번호와 TID를 매핑해서 저장해놓는다.
+        // Mapping TID with partner_order_id then save it to use for approval request.
+        this.tid = readyResponse.getTid(); // 전역변수 작업
+        
+        return readyResponse;
+    }
+    // 2) 결제승인요청(approve)
+    public String approve(String pgToken) { // 리턴타입 String 이유? 카카오쪽에서 알아서 해라라는 뜻
+        // ready할 때 저장해놓은 TID로 승인 요청
+        // Call “Execute approved payment” API by pg_token, TID mapping to the current payment transaction and other parameters.
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "SECRET_KEY DEV5611B37223A9D8322A9BED1D37EFF6D7478C5");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Request param
+        ApproveRequest approveRequest = ApproveRequest.builder()
+                .cid("TC0ONETIME")
+                .tid(tid)
+                .partnerOrderId("1")
+                .partnerUserId("1")
+                .pgToken(pgToken) 
+                .build();
+
+        // Send Request
+        HttpEntity<ApproveRequest> entityMap = new HttpEntity<>(approveRequest, headers);
+        try {
+            ResponseEntity<String> response = new RestTemplate().postForEntity(
+                    "https://open-api.kakaopay.com/online/v1/payment/approve",
+                    entityMap,
+                    String.class
+            );
+            // 승인 결과를 저장한다.
+            // save the result of approval
+            String approveResponse = response.getBody();
+            return approveResponse;
+        } catch (HttpStatusCodeException ex) {
+            return ex.getResponseBodyAsString();
+        }
+    }
 }

@@ -223,8 +223,7 @@
 	$("#papup_info").load("/product/pro_info_2?pro_num=" + pro_num);
 	
 }); 
-
-
+	
 	// name="btn_direct_order"
 	$("button[name='btn_direct_order']").on("click", function() {
 
@@ -236,6 +235,20 @@
 
 		$("#papup_info").load("/product/pro_info_2?pro_num=" + pro_num);
 	}); 
+	
+	// 바로구매 model2 pro_info_2.html id="btn_direct_buy"
+	$("#order_process_popup_2").on("click","button#btn_direct_buy" ,function() {
+			
+			console.log("바로구매");
+	
+			let pro_num = $(this).data("pro_num");
+			let cart_amount = $("#btn_cart_amount").val();
+	
+			let url = `/order/orderinfo?pro_num=${pro_num}&cart_amount=${cart_amount}`;
+
+			location.href = url;
+		});
+
 	
 	// 장바구니 추가작업 model2 pro_info_2.html id="btn_cart_add"
 	$("#order_process_popup_2").on("click","button#btn_cart_add" ,function() {
