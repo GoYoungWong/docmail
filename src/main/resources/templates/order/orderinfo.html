@@ -103,7 +103,7 @@
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="sample2_detailAddress" name="ord_addr_detail" placeholder="상세주소를 입력하세요.">
                         <input type="hidden" id="sample2_extraAddress" placeholder="참고항목">
-                        <input type="hidden" th:value="${total_price}" name="ord_price">
+                        <input type="hidden" th:value="${total_price}" name="ord_price" id="ord_price">
                     </div>
                 </div>
                 
@@ -145,7 +145,7 @@
             </div>
             
             <div class="card-footer"> <!--  id="btnJoin"  -->
-            <button type="button" class="btn btn-info" id="btnJoin">주문하기</button>
+            <button type="button" class="btn btn-info mx-auto" id="btn_order_payment">주문및결제하기</button>
             </div>
             
             </form>
@@ -297,8 +297,23 @@ $(document).ready(function() {
     }
   });
 
-
-  }); // ready event end
+  // 주문결제하기. id="btn_order_payment"
+  $("button#btn_order_payment").on("click", function() {
+    $.ajax({
+      url: '/kakao/kakaoPay',
+      type: 'get',
+      data: {ord_name: $("#ord_name").val(), ord_addr_zipcode:$("#sample2_postcode").val() , ord_addr_basic:$("#sample2_address").val() , ord_addr_detail:$("#sample2_detailAddress").val() ,ord_tel:$("#ord_tel").val() , ord_price:$("#ord_price").val() , ord_desc:$("#ord_desc").val()},
+      dataType: 'json',
+      success: function(response) {
+        console.log("응답: " + response);
+        
+        alert(response.next_redirect_pc_url);
+        location.href = response.next_redirect_pc_url; // 결제QR코드 주소이동
+      }
+    
+    });
+  });
+}); // ready event end
 	
 	
 	</script>

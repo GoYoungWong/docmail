@@ -16,7 +16,8 @@ SEQ_ORD_CODE
 @Setter
 @ToString
 public class OrderVO {
-
+	
+	// 주문자정보
 	private Long   ord_code;
 	private String mbsp_id;
 	private String ord_name;

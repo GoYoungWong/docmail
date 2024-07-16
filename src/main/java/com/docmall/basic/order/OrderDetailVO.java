@@ -14,6 +14,7 @@ ord_code, pro_num, dt_amount, dt_price
 @ToString
 public class OrderDetailVO {
 
+	// 주문상품정보
 	private Long ord_code;
 	private int  pro_num;
 	private int  dt_amount;
