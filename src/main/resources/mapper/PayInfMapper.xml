@@ -5,9 +5,9 @@
 	<insert id="payinfo_insert" parameterType="PayInfoVO">
 	
 		INSERT INTO
-			payinfo(p_id, ord_code, paymethod, p_price, p_status)
+			payinfo(p_id, ord_code,mbsp_id ,paymethod,payinfo ,p_price, p_status)
 		VALUES
-			(SEQ_PAYINFO_ID.NEXTVAL, #{ord_code}, #{paymethod}, #{p_price}, #{p_status})
+			(SEQ_PAYINFO_ID.NEXTVAL, #{ord_code},#{mbsp_id} ,#{paymethod},#{payinfo}, #{p_price}, #{p_status})
 	
 	
 	</insert>

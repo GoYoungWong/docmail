@@ -66,7 +66,7 @@
                 <div class="card-header">
                 <h3 class="card-title">주문정보(배송) 입력</h3>
             	</div>
-			<form class="form-horizontal" id="" action="" method="post">
+			<form class="form-horizontal" id="orderForm" action="/order/ordersave" method="post">
             <div class="card-body">
             	<div class="form-group form-check">
     			<input type="checkbox" class="form-check-input" id="ordersame">
@@ -129,14 +129,12 @@
 					          은행명 
 					          <select name="pay_nobank" id="pay_nobank">
 					            <option value="">입금은행을 선택하세요.</option>
-					            <option value="123-123-1234">KEB하나은행</option>
-					            <option value="456-456-4567">국민은행</option>
-					            <option value="100-100-1000">신한은행</option>
-					            <option value="200-200-2000">SC제일은행</option>
+					            <option value="KEB하나은행/123-123-1234">KEB하나은행/123-123-1234</option>
+					            <option value="국민은행/456-456-4567">국민은행/456-456-4567</option>
+					            <option value="신한은행/100-100-1000">신한은행/100-100-1000</option>
+					            <option value="SC제일은행/200-200-2000">SC제일은행/200-200-2000</option>
 					          </select><br>
-					          계좌번호 <input type="text" name="pay_bankaccount" id="pay_bankaccount"><br>
 					          예금주 <input type="text" name="pay_nobank_user" id="pay_nobank_user"><br>
-					          메모<textarea cols="50" rows="3" name="pay_memo" id="pay_memo"></textarea>
 					        </div>
 					      </div>
 					      </fieldset>
@@ -144,8 +142,8 @@
                 </div>
             </div>
             
-            <div class="card-footer"> <!--  id="btnJoin"  -->
-            <button type="button" class="btn btn-info mx-auto" id="btn_order_payment">주문및결제하기</button>
+            <div class="card-footer text-center"> 
+            <button type="button" class="btn btn-info" id="btn_order_payment">주문및결제하기</button>
             </div>
             
             </form>
@@ -297,8 +295,19 @@ $(document).ready(function() {
     }
   });
 
-  // 주문결제하기. id="btn_order_payment"
+  // 주문결제하기. id="btn_order_payment" nobank이면 무통장으로 kakaopay이면 ajax로 보냄
   $("button#btn_order_payment").on("click", function() {
+
+    let paymethod = $("input[name='paymethod']:checked").val();
+
+    //console.log("paymethod", paymethod);
+    //return;
+
+    if(paymethod == "nobank") {
+      let orderForm = $("#orderForm");
+      orderForm.submit();
+
+    }else if (paymethod == "kakaopay") {
     $.ajax({
       url: '/kakao/kakaoPay',
       type: 'get',
@@ -310,9 +319,13 @@ $(document).ready(function() {
         alert(response.next_redirect_pc_url);
         location.href = response.next_redirect_pc_url; // 결제QR코드 주소이동
       }
-    
     });
-  });
+  }
+
+});
+
+// id="pay_nobank"
+
 }); // ready event end
 	
 	

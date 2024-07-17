@@ -68,6 +68,7 @@ public class KakaopayController {
 		String partnerOrderId = mbsp_id;
 		String partnerUserId = mbsp_id;
 		
+		// 1) 결제준비요청
 		ReadyResponse readyResponse = kakaoPayService.ready(partnerOrderId, partnerUserId, itemName, quantity, 
 				 					totalAmount,  taxFreeAmount,  vatAmount);
 		
@@ -95,7 +96,7 @@ public class KakaopayController {
 		// 트랜잭션으로 처리: 주문테이블, 주문상세테이블, 결제테이블, 장바구니 비우기
 		if(approveResponse.contains("aid")) {   // aid : 성공적으로 넘어왔을때 발생하는 키값
 			log.info("주문자정보2: " + vo);
-			orderService.order_process(vo, mbsp_id);
+			orderService.order_process(vo, mbsp_id, "kakaopay", "완료", "kakaopay");
 		}
 		
 		log.info("최종결과: " + approveResponse);

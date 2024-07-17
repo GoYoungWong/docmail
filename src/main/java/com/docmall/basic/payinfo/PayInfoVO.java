@@ -15,9 +15,11 @@ import lombok.ToString;
 @ToString
 public class PayInfoVO {
 	
-	private Integer  p_id;
-	private Long     ord_code;
+	private Integer p_id;
+	private Long    ord_code;
+	private String  mbsp_id;
 	private String  paymethod;
+	private String  payinfo;
 	private int		p_price;
 	private String  p_status;
 	private Date    p_date;

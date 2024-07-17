@@ -21,9 +21,9 @@ public class OrderService {
 	
 	private final CartMapper cartMapper;
 	
-	// @Transactional: 하나의 단위로 여러개를 할려면 이거 넣으면됨 (원해는 데이터베이스기능임)
+	// @Transactional: 하나의 단위로 여러개를 할려면 이거 넣으면됨 (원래는 데이터베이스기능임)
 	@Transactional
-	public void order_process(OrderVO vo, String mbsp_id) {
+	public void order_process(OrderVO vo, String mbsp_id, String paymethod, String p_status, String payinfo) {
 		
 		// 1)주문테이블(insert)
 		vo.setMbsp_id(mbsp_id);
@@ -36,8 +36,10 @@ public class OrderService {
 		PayInfoVO p_vo = PayInfoVO.builder()
 				.ord_code(vo.getOrd_code())
 				.p_price(vo.getOrd_price())
-				.paymethod("kakaopay")
-				.p_status("완납")
+				.mbsp_id(mbsp_id)
+				.paymethod(paymethod)
+				.payinfo(payinfo)
+				.p_status(p_status)
 				.build();
 		
 		payInfMapper.payinfo_insert(p_vo);
