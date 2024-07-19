@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/payinfo/*")
 @RequiredArgsConstructor
-public class PayInfController {
+public class PayInfoController {
 
-	private final PayInfService payInfService;
+	private final PayInfoService payInfService;
 }

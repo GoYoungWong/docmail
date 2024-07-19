@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h5>[주문상품정보]</h5>
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th>번호</th>	
+      <th scope="col">주문상품</th>
+      <th scope="col">판매가</th>
+      <th scope="col">수량</th>
+      <th scope="col">주문금액</th>
+      <th scope="col">비고</th>
+    </tr>
+  </thead>
+  <tbody>   <!-- status: 순서를 만들어줌 -->
+    <tr th:each="ord_product,status : ${ord_product_list}">
+      <td th:text="${status.count}">1</td>
+      <td>
+      	<!-- /admin/product/imageDisplaydateFolderName=값1&?fileName=값2  -->
+		<a class="move" href="#">
+		<!-- /*/    /*/-->
+		<img th:src="${'/admin/order/image_display?dateFolderName=' + ord_product.pro_up_folder + '&fileName=s_' + ord_product.pro_img}" style="width: 80px;height: 100px;">
+		</a>
+		
+		<a class="move pro_name" href="#" th:text="${ord_product.pro_name}"></a>
+      </td>
+      <td th:text="${ord_product.dt_amount}"></td>
+      <td th:text="${ord_product.dt_price}"></td>
+      <td th:text="${ord_product.dt_price * ord_product.dt_amount}"></td>
+      <td>
+      <button type="button" class="btn btn-danger" th:data-pro_num="${ord_product.pro_num}">delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+<h5>[결제정보]</h5>
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">결제방식</th>
+      <td scope="col">무통장</td>
+      <th scope="col">결제금액</th>
+      <td scope="col">450000</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">입금자명</th>
+      <td>홍길동</td>
+      <th>입금계좌</th>
+      <td>농협123</td>
+    </tr>
+    <tr>
+      <th scope="row">현금영수증방식</th>
+      <td>사업자</td>
+      <th>연락처및사업자번호</th>
+      <td>010-2222-3333</td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+<h5>[주문자(수령인)정보]</h5>
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">수령인</th>
+      <td scope="col">
+      	<input type="text" th:value="${ord_basic.ord_name}">
+      </td>
+      <th scope="col">전화번호</th>
+      <td scope="col">
+      	<input type="text" th:value="${ord_basic.ord_tel}">
+      </td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">주소</th>
+      <td Colspan="3">
+      <button type="button" class="btn btn-outline-primary" onclick="sample2_execDaumPostcode()">우편번호</button>
+      <input type="text" class="form-control" id="sample2_postcode" name="mbsp_zipcode" th:value="${ord_basic.ord_addr_zipcode}" placeholder="우편번호 입력하세요.">
+      <input type="text" class="form-control" id="sample2_address" name="mbsp_addr" th:value="${ord_basic.ord_addr_basic}" placeholder="기본주소를 입력하세요.">
+      <input type="text" class="form-control" id="sample2_detailAddress" name="mbsp_deaddr" th:value="${ord_basic.ord_addr_detail}" placeholder="상세주소를 입력하세요.">
+      <input type="hidden" id="sample2_extraAddress" placeholder="참고항목">
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">배송메모</th>
+      <td Colspan="3">
+      	<textarea rows="3" cols="40" th:text="${ord_basic.ord_desc}">배송내용.........</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+<h3>관리자메모</h3>
+	<textarea rows="3" cols="80">관리자내용</textarea>
+
+  
+  
+</body>
+</html>

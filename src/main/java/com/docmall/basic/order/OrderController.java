@@ -101,7 +101,7 @@ public class OrderController {
 		
 		orderService.order_process(vo, mbsp_id, "무통장입금", "미납", payinfo);
 		
-		return "/redirect:/주문완료주소.";
+		return "redirect:/order/ordercomplete";
 	}
 	
 	// 주문완료

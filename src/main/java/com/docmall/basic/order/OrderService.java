@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.docmall.basic.cart.CartMapper;
-import com.docmall.basic.payinfo.PayInfMapper;
+import com.docmall.basic.payinfo.PayInfoMapper;
 import com.docmall.basic.payinfo.PayInfoVO;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class OrderService {
 
 	private final OrderMapper orderMapper;
 	
-	private final PayInfMapper payInfMapper; 
+	private final PayInfoMapper payInfMapper; 
 	
 	private final CartMapper cartMapper;
 	

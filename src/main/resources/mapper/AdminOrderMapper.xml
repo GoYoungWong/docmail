@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.basic.admin.order.AdminOrderMapper">
+
+	<!--  검색조건이 1)목록 2)총데이타 개수 공통사항 -->
+	<!-- 검색종류가 (상품명 또는 제조사 또는 내용) 선택.  "N"  "P"   "C", "NP" -->
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND" prefixOverrides="OR">
+			<foreach collection="typeArr" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'N'.toString()">
+							ord_name like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'C'.toString()">
+							ord_code like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'I'.toString()">
+							mbsp_id like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+	
+	
+	<!--  공통사항 : 검색조건추가 -->
+	<select id="order_list" resultType="OrderVO" parameterType="Criteria">
+	
+		
+		SELECT 
+			ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
+		FROM (
+		    	SELECT /*+ INDEX_DESC(order_tbl PK_ORD_CODE)  */ 
+		        	ROWNUM AS RN, ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
+		    	FROM
+		        	order_tbl
+		    	WHERE 
+  		
+		   <include refid="criteria"></include>
+		 
+		 <![CDATA[  		
+		   		ROWNUM <= (#{pageNum} * #{amount})   -- 페이지번호 * 페이지별 출력건수
+		 ]]>  		
+		)
+		WHERE 
+			RN > (#{pageNum} - 1 ) * #{amount}
+		
+	
+	</select>
+	
+	<!--  공통사항 : 검색조건추가 -->
+	<select id="getTotalCount" resultType="int">
+	
+		SELECT
+			COUNT(*)
+		FROM
+			order_tbl
+		
+		WHERE
+			<include refid="criteria"></include>
+			ord_code > 0
+	</select>
+
+
+	<select id="order_info" parameterType="Long" resultType="OrderVO">
+	
+		SELECT 
+			ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
+		FROM
+			order_tbl
+		WHERE
+			ord_code = #{ord_code}
+	
+	
+	</select>
+
+	<select id="order_detail_info" parameterType="Long" resultType="OrderDetailInfoVo">
+		SELECT 
+			ot.ord_code, ot.pro_num, ot.dt_amount, ot.dt_price,p.pro_name, p.pro_up_folder,p.pro_img
+		FROM 
+			ordetail_tbl ot 
+		INNER JOIN 
+			product_tbl p
+		ON 
+			ot.pro_num = p.pro_num
+		WHERE 
+			ot.ord_code = #{ord_code}
+	
+	
+	
+	</select>
+
+
+</mapper>
