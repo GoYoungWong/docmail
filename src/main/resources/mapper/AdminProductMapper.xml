@@ -2,7 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.docmall.basic.admin.product.AdminProductMapper">
 
-	<insert id="pro_insert" parameterType="com.docmall.basic.admin.product.AdminProductMapper">
+	<!-- 테이블의 컬럼명과 VO,DTO 클래스의 필드명이 다를때 사용한다. 현재는 컬럼명과필드명이 같은상태이다. -->
+	<resultMap type="ProductVo" id="productMap">
+		<id property="pro_num" column="pro_num" /> <!-- 테이블의 PRIMARY KEY -->
+		<result property="cat_code" column="cat_code"/> <!-- PRIMARY KEY가 아닌건 result로 작성  -->
+		<result property="pro_name" column="pro_name"/>
+		<result property="pro_price" column="pro_price"/>
+		<result property="pro_discount" column="pro_discount"/>    <!-- property:클래스에 있는이름 column: DB에 있는 이름  -->
+		<result property="pro_publisher" column="pro_publisher"/>
+		<result property="pro_content" column="pro_content"/>
+		<result property="pro_up_folder" column="pro_up_folder"/>
+		<result property="pro_img" column="pro_img"/>
+		<result property="pro_amount" column="pro_amount"/>
+		<result property="pro_buy" column="pro_buy"/>
+		<result property="pro_date" column="pro_date"/>
+		<result property="pro_updatedate" column="pro_updatedate"/>
+	</resultMap>
+
+
+
+
+	<insert id="pro_insert" parameterType="ProductVo">
 	
 		INSERT INTO
 			product_tbl(pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy)
@@ -35,8 +55,8 @@
 	</sql>
 	
 	
-	<!--  공통사항 : 검색조건추가 -->
-	<select id="pro_list" resultType="ProductVo" parameterType="com.docmall.basic.common.dto.Criteria">
+	<!--  공통사항 : 검색조건추가 --> <!-- resultMap: DB컬럼명과 클래스 필드명이 다를경우 사용 -->
+	<select id="pro_list" resultMap="productMap" parameterType="com.docmall.basic.common.dto.Criteria">
 	
 		
 		SELECT 

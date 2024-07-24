@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.docmall.basic.admin.category.AdminCategoryService;
 import com.docmall.basic.admin.category.CategoryVo;
+import com.docmall.basic.common.constants.Constants;
 import com.docmall.basic.common.dto.Criteria;
 import com.docmall.basic.common.dto.PageDTO;
 import com.docmall.basic.common.util.FileManagerUtils;
@@ -161,7 +162,7 @@ public class AdminProductController {
 		
 		// pageNum=1, amount=10
 		
-//		cri.setAmount(2);
+		cri.setAmount(Constants.ADMIN_PRODUCT_LIST_AOMUNT); // 상수로 적용
 		
 		log.info("Criteria: " + cri);
 		

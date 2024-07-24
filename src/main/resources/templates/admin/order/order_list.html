@@ -65,7 +65,7 @@ desired effect
 	   <td>{{dt_amount}}</td>
 	   <td>{{unit_order_tot_price dt_price dt_amount}}</td>
 	   <th scope="col">
-	   <button type="button" class="btn btn-danger" data-pro_num="{{pro_num}}">delete</button>
+	   <button type="button" name="order_product_detail" class="btn btn-danger" data-pro_num="{{pro_num}}">delete</button>
 	   </th>
 	 </tr>
 	{{/each}}
@@ -118,6 +118,8 @@ desired effect
 								<input type="text" name="keyword" th:value="${pageMaker.cri.keyword}">
 								<input type="hidden" name="pageNum" th:value="${pageMaker.cri.pageNum}">
 								<input type="hidden" name="amount" th:value="${pageMaker.cri.amount}">
+								날짜검색 : 
+									<input type="date" name="start_date" th:value="${start_date}"> ~ <input type="date" name="end_date" th:value="${end_date}">
 								<button type="submit" class="btn btn-primary">검색</button>
 						</form>
 					</div>
@@ -266,6 +268,7 @@ desired effect
 		      <th scope="col">수령인</th>
 		      <td scope="col">
 		      	<input type="text" id="ord_name" name="ord_name">
+				<input type="hidden" id="mbsp_id" name="mbsp_id">
 		      </td>
 		      <th scope="col">전화번호</th>
 		      <td scope="col">
@@ -287,14 +290,15 @@ desired effect
 		    <tr>
 		      <th scope="row">배송메모</th>
 		      <td Colspan="3">
-		      	<textarea rows="3" cols="40" id="" name="">배송내용.........</textarea>
+		      	<textarea rows="3" cols="40" id="ord_desc" name="ord_desc">배송내용.........</textarea>
 		      </td>
 		    </tr>
 		  </tbody>
 		</table>
 		<hr>
 		<h3>관리자메모</h3>
-			<textarea rows="3" cols="80">관리자내용</textarea>
+			<textarea rows="3" cols="80" id="ord_admin_memo">관리자내용</textarea>
+			<button type="button" id="btn_order_basic_save" class="btn btn-secondary">수정하기</button>
 		</div>
 		
 		</div>
@@ -410,65 +414,114 @@ desired effect
 
 	$(document).ready(function() {
 	
-	let actionForm = $("#actionForm");
+		let actionForm = $("#actionForm");
+		let ord_code; // 전역변수로 뺌
 	
+		// 페이지번호 클릭시(이전  1  2  3  4  5  다음) actionForm 을 사용한다.
+		$(".movepage").on("click", function(e) {
+			e.preventDefault(); // a태그의 href기능을 제거.
+			// 주소변경
+			actionForm.attr("action", "/admin/order/order_list");
+			// 1)사용자가 클릭한 페이지번호 작업
+			actionForm.find("input[name='pageNum']").val($(this).attr("href"));
+			actionForm.submit();
+				});
 	
-	// 페이지번호 클릭시(이전  1  2	 3	4	5  다음) actionForm 을 사용한다.
-	$(".movepage").on("click", function(e) {
-		e.preventDefault(); // a태그의 href기능을 제거.
-		// 주소변경
-		actionForm.attr("action", "/admin/order/order_list");
-		
-		// 1)사용자가 클릭한 페이지번호 작업
-		actionForm.find("input[name='pageNum']").val($(this).attr("href"));
-	
-		actionForm.submit();
-	});
-
 		// 상세보기 name="btn_order_info"
 		$("button[name='btn_order_info']").on("click", function() {
-			let ord_code = $(this).data("ord_code");
-
-			// id="order_ditail_info_popup"
+			ord_code = $(this).data("ord_code"); // 전역변수에 할당
+			order_detail_info();
+		});
+	
+		function order_detail_info() {
 			$("#order_ditail_info_popup").modal('show'); // 부트스트랩 기반으로 만들어져 있어서 그냥 show하지 말고 modal('show')로 해야한다.
+	
+			$.ajax({
+				url: '/admin/order/order_detail_info',
+				type: 'get',
+				data: { ord_code: ord_code },
+				dataType: 'json',
+				success: function(result) {
+					console.log(result);
+					// 주문자(수령인) 작업
+					$("#ord_name").val(result.ord_basic.ord_name);
+					$("#ord_tel").val(result.ord_basic.ord_tel);
+					$("#sample2_postcode").val(result.ord_basic.ord_addr_zipcode);
+					$("#sample2_address").val(result.ord_basic.ord_addr_basic);
+					$("#sample2_detailAddress").val(result.ord_basic.ord_addr_detail);
+					$("#ord_desc").val(result.ord_basic.ord_desc);
+					// 주문상품정보
+					print_order_product_info(result.ord_pro_list, $("#order_product_info"), $("#order-product-template"));
+					// 결제정보
+					$("#paymethod").val(result.payinfo.paymethod);
+					$("#p_price").val(result.payinfo.p_price);
+					$("#mbsp_id").val(result.payinfo.mbsp_id);
+					$("#payinfo").val(result.payinfo.payinfo);
+					$("#p_status").val(result.payinfo.p_status);
+				},
+				error: function() {
+					
+				}
+			});
+		}
+	
+		// 주문상품 개별삭제
+		$("div#papup_info div#order_product_info").on("click", "button[name='order_product_detail']", function() {
+		
+			if(!confirm("삭제하시겠습니까?")) return;
 
-			//	$("#papup_info").load("/admin/order/order_detail_info?ord_code=" + ord_code);
-				// ajax메서드를 사용하면 스프링쪽은 ResponsEntity를 메서드로 사용하지만 load매서드를 사용하면 주소가 타입리프로 정상적으로 사용되어야 해서 스프링에서 Model을 사용해야한다.
+			// ord_code : 주문번호는 상세보기 클릭시 위에 전역변수로 선언.
+			
+			let pro_num = $(this).data("pro_num");
 
-				$.ajax({
-					url: '/admin/order/order_detail_info',
-					type: 'get',
-					data: {ord_code : ord_code},
-					dataType: 'json',
-					success: function(result) {
-						console.log(result);
-						
-						// 주문자(수령인) 작업
-						$("#ord_name").val(result.ord_basic.ord_name);
-						$("#ord_tel").val(result.ord_basic.ord_tel);
-						$("#sample2_postcode").val(result.ord_basic.ord_addr_zipcode);
-						$("#sample2_address").val(result.ord_basic.ord_addr_basic);
-						$("#sample2_detailAddress").val(result.ord_basic.ord_addr_detail);
-						$("#ord_desc").val(result.ord_basic.ord_desc);
-						
-						// 주문상품정보				// order_product_data	// 주문정보가 삽입될위치			// template
-						print_order_product_info(result.ord_pro_list,$("#order_product_info"), $("#order-product-template")); 
-
-						// console.log(result.payinfo.p_price);
-
-						// 결제정보
-						$("#paymethod").val(result.payinfo.paymethod);
-						$("#p_price").val(result.payinfo.p_price);
-						$("#mbsp_id").val(result.payinfo.mbsp_id);
-						$("#payinfo").val(result.payinfo.payinfo);
-						$("#p_status").val(result.payinfo.p_status);
-					},
-					error: function() {
+			// console.log("주문번호: ", ord_code);
+			// console.log("상품번호: ",pro_num);
+			
+	
+			$.ajax({
+				url: '/admin/order/order_product_delete',
+				type: 'get',
+				data: { ord_code: ord_code, pro_num: pro_num },
+				dataType: 'text',
+				success: function(result) {
+					if(result === 'success') {
+						alert("주문상품이 삭제가 되었습니다.");
+						order_detail_info();
+					} 
+				},
+				error: function() {
 				}
 			});
 		});
-		
-}); // ready event end
+
+		// 기본 주문(수령)정보 수정하기. btn_order_basic_save
+		$("button#btn_order_basic_save").on("click",function() {
+			
+			// ord_code: 전역변수
+			// mbsp_id : 세션에서 참조하면 안됨. 히든으로 숨겨둠
+			
+			let ord_basic_data = { 
+				ord_code: ord_code, ord_name : $("#ord_name").val(), mbsp_id : $("#mbsp_id").val(),
+				ord_addr_zipcode : $("#sample2_postcode").val(), ord_addr_basic : $("#sample2_address").val(), ord_addr_detail : $("#sample2_detailAddress").val(),
+				ord_tel : $("#ord_tel").val(), ord_desc : $("#ord_desc").val(),ord_admin_memo : $("#ord_admin_memo").val() 
+			}
+			
+			$.ajax({
+				url: '/admin/order/order_basic_modify',
+				type: 'post',
+				data: ord_basic_data,
+				dataType: 'text',
+				success: function(result) {
+					if(result === 'success') {
+						alert("주문정보가 수정되었습니다.");
+						order_detail_info();
+					} 
+				}
+				
+			});
+		});
+	
+	}); // ready event end
 
 		//Handleber 작업합수
 		let print_order_product_info = function(order_product_data, target, template) {

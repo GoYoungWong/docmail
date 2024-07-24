@@ -10,8 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.docmall.basic.common.constants.Constants;
 import com.docmall.basic.common.dto.Criteria;
 import com.docmall.basic.common.dto.PageDTO;
 import com.docmall.basic.common.util.FileManagerUtils;
@@ -19,6 +22,7 @@ import com.docmall.basic.order.OrderVO;
 import com.docmall.basic.payinfo.PayInfoService;
 import com.docmall.basic.payinfo.PayInfoVO;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,16 +41,18 @@ public class AdminOrderController {
 	private String uploadPath;
 
 	// 주문리스트
-	@GetMapping("/order_list")
-	public void order_list(Criteria cri, Model model) throws Exception{
+	@GetMapping("/order_list")				// 날짜 검색을 위해 추가 
+	public void order_list(Criteria cri,@ModelAttribute("start_date") String start_date ,
+										@ModelAttribute("end_date") String end_date,
+										Model model) throws Exception{
 		
 		log.info("Criteria" +cri);
-		cri.setAmount(2);
+		cri.setAmount(Constants.ADMIN_ORDER_LIST_AOMUNT);  // 상수로 적용
 		
 		// 주문리스트를 가지고옴
-		List<OrderVO> order_list = adminOrderService.order_list(cri);
+		List<OrderVO> order_list = adminOrderService.order_list(cri,start_date,end_date);
 		
-		int totalCount = adminOrderService.getTotalCount(cri);
+		int totalCount = adminOrderService.getTotalCount(cri,start_date,end_date);
 		
 		log.info("pagedto" + new PageDTO(cri, totalCount));
 		
@@ -94,6 +100,32 @@ public class AdminOrderController {
 		return entity;
 	}
 	
+	// 주문개별삭제
+	@GetMapping("/order_product_delete")
+	public ResponseEntity<String> order_product_delete(Long ord_code, int pro_num) throws Exception {
+		ResponseEntity<String> entity = null;
+		
+		// db연동
+		adminOrderService.order_product_delete(ord_code, pro_num);
+		
+		
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		return entity;
+	}
+	
+	// 기본 주문(수령)정보 수정하기
+	@PostMapping("/order_basic_modify")
+	public ResponseEntity<String> order_basic_modify(OrderVO vo) throws Exception {
+		ResponseEntity<String> entity = null;
+		
+		log.info("주문기본정보" + vo);
+
+		// db연동
+		adminOrderService.order_basic_modify(vo);
+		
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		return entity;
+	}
 	
 	
 	

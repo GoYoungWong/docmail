@@ -8,7 +8,7 @@ import lombok.ToString;
 
 /*
 order_tbl
-ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
+ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc,ord_admin_memo ,ord_regdate
 SEQ_ORD_CODE
 */
 
@@ -27,6 +27,7 @@ public class OrderVO {
 	private String ord_tel;
 	private int    ord_price;
 	private String ord_desc;
+	private String ord_admin_memo;  // 관리자메모
 	private Date   ord_regdate;
 
 	
