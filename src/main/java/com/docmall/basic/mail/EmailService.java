@@ -35,22 +35,35 @@ public class EmailService {
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 		
 		try {
-			//받는사람의 메일주소
-//			mimeMessage.addRecipient(RecipientType.TO, new InternetAddress(dto.getReceiverMail()));
-			//보내는 사람(메일, 이름)
-//			mimeMessage.addFrom(new InternetAddress[] {new InternetAddress(dto.getSenderMail(), dto.getSenderName())});
-			//제목
-//			mimeMessage.setSubject(dto.getSubject(), "utf-8");
-			//본문내용
-//			mimeMessage.setText(authcode, "utf-8");
-//			mimeMessage.setText(setContext(authcode, "email"), "utf-8");
-			
 			// 메일템플릿으로 타임리프 사용목적으로 아래코드가 구성됨.
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(dto.getReceiverMail()); // 메일 수신자
             mimeMessageHelper.setFrom(new InternetAddress(dto.getSenderMail(), dto.getSenderName()));
             mimeMessageHelper.setSubject(dto.getSubject()); // 메일 제목
             mimeMessageHelper.setText(setContext(authcode, type), true); // 메일 본문 내용, HTML 여부
+			
+			// 메일발송기능
+			mailSender.send(mimeMessage);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}  
+	
+	// 관리자 회원목록에서 이메일 단체메일을 위해 하나 더만든 메서드
+									// String[] emailArr : 이메일을 배열로 받아옴
+public void sendMail(EmailDTO dto, String[] emailArr) {
+		
+		//메일구성정보 담당(받는사람, 보내는 사람, 받는사람 메일주소, 본문내용)
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		
+		try {
+			// 메일템플릿으로 타임리프 사용목적으로 아래코드가 구성됨.
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(emailArr); // 메일 수신자
+            mimeMessageHelper.setFrom(new InternetAddress(dto.getSenderMail(), dto.getSenderName()));
+            mimeMessageHelper.setSubject(dto.getSubject()); // 메일 제목
+            mimeMessageHelper.setText(dto.getMessage(), true); // 메일 본문 내용, HTML 여부
 			
 			// 메일발송기능
 			mailSender.send(mimeMessage);
